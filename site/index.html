@@ -227,6 +227,7 @@
   <div class="content">
     <h1>Round complete</h1>
     <p id="score-line" class="big"></p>
+    <p id="save-note" class="small" hidden>This device couldn't save your progress, so it won't be kept after you close the page.</p>
     <div class="box">
       <h2>Missed cards</h2>
       <div id="missed-list"></div>
@@ -586,9 +587,33 @@
     }
   }
 
+  function todayString() {
+    var d = new Date();
+    function two(n) { return (n < 10 ? "0" : "") + n; }
+    return d.getFullYear() + "-" + two(d.getMonth() + 1) + "-" + two(d.getDate());
+  }
+
+  // Adds one finished round to the progress record. Each card in the round
+  // counts once: seen +1, and correct +1 if it was right on the first attempt.
+  function applyRound(progress, r, today) {
+    r.queue.forEach(function (item) {
+      if (item.retry) return;
+      var id = item.card.id;
+      var p = progress[id] || { seen: 0, correct: 0, last: "" };
+      p.seen++;
+      if (r.first[id]) p.correct++;
+      p.last = today;
+      progress[id] = p;
+    });
+  }
+
+  // Progress is saved only here, when a round finishes. Quitting skips it.
   function finishRound() {
-    // Step 9 will save the round's results to progress here.
+    applyRound(progress, round, todayString());
+    var saved = saveProgress(progress);
+    renderStats();
     renderResults(roundResults(round));
+    el("save-note").hidden = saved;
     showScreen("results");
   }
 
