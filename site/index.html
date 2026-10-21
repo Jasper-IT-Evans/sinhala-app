@@ -113,6 +113,29 @@
     border-color: var(--accent);
     color: var(--accent-text);
   }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .mini-row { display: flex; gap: 12px; margin-bottom: 8px; }
+  .mini-row button { flex: 1; }
+
+  .choice {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 48px;
+    cursor: pointer;
+  }
+  .choice input {
+    flex: none;
+    width: 24px;
+    height: 24px;
+    margin: 0;
+    accent-color: var(--accent);
+  }
+  .choice .count { margin-left: auto; color: var(--muted); }
+
+  #start-hint { margin: 0; text-align: center; }
+
   button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
 </style>
 </head>
@@ -125,16 +148,21 @@
 
     <div class="box">
       <h2>Categories</h2>
-      <p class="muted">Category choices go here (step 6).</p>
+      <div class="mini-row">
+        <button type="button" id="select-all">Select all</button>
+        <button type="button" id="clear-all">Clear all</button>
+      </div>
+      <div id="category-list"></div>
     </div>
 
     <div class="box">
       <h2>Direction</h2>
-      <p class="muted">English to Sinhala, Sinhala to English or mixed (step 6).</p>
+      <div id="direction-list"></div>
     </div>
   </div>
   <div class="actions">
-    <button type="button" class="primary">Start</button>
+    <p id="start-hint" class="muted"></p>
+    <button type="button" id="start-btn" class="primary">Start</button>
   </div>
 </section>
 
@@ -143,7 +171,7 @@
     <p class="muted">Card 1 of 10</p>
     <div class="box">
       <h2>Prompt</h2>
-      <p>The word or sentence to say aloud appears here.</p>
+      <p id="card-setup">The word or sentence to say aloud appears here.</p>
     </div>
     <div class="box" id="answer-area" hidden>
       <h2>Answer</h2>
@@ -170,7 +198,7 @@
   </div>
   <div class="actions">
     <button type="button" class="primary">Another round</button>
-    <button type="button">Back to start</button>
+    <button type="button" id="back-btn">Back to start</button>
   </div>
 </section>
 
@@ -282,9 +310,147 @@
 
   var progress = loadProgress();
 
-  // Temporary layout preview: open /#card or /#results. Removed in step 6.
-  var initial = location.hash.replace("#", "");
-  showScreen(SCREENS.indexOf(initial) >= 0 ? initial : "start");
+  // ---- Start screen ----
+  var DIRECTIONS = [
+    { value: "en-si", label: "English → Sinhala" },
+    { value: "si-en", label: "Sinhala → English" },
+    { value: "mixed", label: "Mixed" }
+  ];
+
+  function categoryCounts(cards) {
+    var counts = {};
+    cards.forEach(function (c) { counts[c.category] = (counts[c.category] || 0) + 1; });
+    return counts;
+  }
+
+  // Categories that have at least one card, in the agreed order.
+  function availableCategories(cards) {
+    var counts = categoryCounts(cards);
+    var order = Array.isArray(window.CATEGORIES) ? window.CATEGORIES.slice() : [];
+    Object.keys(counts).forEach(function (c) {
+      if (order.indexOf(c) < 0) order.push(c);
+    });
+    return order.filter(function (c) { return counts[c] > 0; });
+  }
+
+  function cardsInCategories(cards, chosen) {
+    return cards.filter(function (c) { return chosen.indexOf(c.category) >= 0; });
+  }
+
+  // Cards practised = cards seen at least once. Accuracy = first-attempt
+  // correct out of first-attempt seen, across those cards.
+  function computeStats(cards, progress) {
+    var practised = 0, seen = 0, correct = 0;
+    cards.forEach(function (c) {
+      var p = progress[c.id];
+      if (p && p.seen > 0) {
+        practised++;
+        seen += p.seen;
+        correct += p.correct;
+      }
+    });
+    return { practised: practised, accuracy: seen ? Math.round(100 * correct / seen) : 0 };
+  }
+
+  function el(id) { return document.getElementById(id); }
+
+  function renderStats() {
+    var s = computeStats(CARDS, progress);
+    el("stats").textContent = "Cards practised: " + s.practised + " · Accuracy: " + s.accuracy + "%";
+  }
+
+  function getSelectedCategories() {
+    var boxes = el("category-list").querySelectorAll("input");
+    var chosen = [];
+    for (var i = 0; i < boxes.length; i++) {
+      if (boxes[i].checked) chosen.push(boxes[i].value);
+    }
+    return chosen;
+  }
+
+  function getDirection() {
+    var picked = el("direction-list").querySelector("input:checked");
+    return picked ? picked.value : DIRECTIONS[0].value;
+  }
+
+  function setAllCategories(checked) {
+    var boxes = el("category-list").querySelectorAll("input");
+    for (var i = 0; i < boxes.length; i++) boxes[i].checked = checked;
+    updateStartButton();
+  }
+
+  function updateStartButton() {
+    var pool = cardsInCategories(CARDS, getSelectedCategories());
+    var btn = el("start-btn");
+    btn.disabled = pool.length === 0;
+    if (CARDS.length === 0) {
+      el("start-hint").textContent = "No cards loaded.";
+    } else if (pool.length === 0) {
+      el("start-hint").textContent = "Pick at least one category.";
+    } else {
+      el("start-hint").textContent = pool.length + " cards to draw from";
+    }
+  }
+
+  function makeChoice(type, name, value, text, checked, countText) {
+    var label = document.createElement("label");
+    label.className = "choice";
+    var input = document.createElement("input");
+    input.type = type;
+    input.name = name;
+    input.value = value;
+    input.checked = checked;
+    if (type === "checkbox") input.addEventListener("change", updateStartButton);
+    var span = document.createElement("span");
+    span.textContent = text;
+    label.appendChild(input);
+    label.appendChild(span);
+    if (countText !== undefined) {
+      var count = document.createElement("span");
+      count.className = "count";
+      count.textContent = countText;
+      label.appendChild(count);
+    }
+    return label;
+  }
+
+  function buildStartScreen() {
+    var counts = categoryCounts(CARDS);
+    var catList = el("category-list");
+    availableCategories(CARDS).forEach(function (cat) {
+      catList.appendChild(makeChoice("checkbox", "category", cat, cat, true, counts[cat]));
+    });
+    var dirList = el("direction-list");
+    DIRECTIONS.forEach(function (d, i) {
+      dirList.appendChild(makeChoice("radio", "direction", d.value, d.label, i === 0));
+    });
+    el("select-all").addEventListener("click", function () { setAllCategories(true); });
+    el("clear-all").addEventListener("click", function () { setAllCategories(false); });
+    el("start-btn").addEventListener("click", startRound);
+    el("back-btn").addEventListener("click", function () {
+      renderStats();
+      showScreen("start");
+    });
+    renderStats();
+    updateStartButton();
+  }
+
+  // The choices made on the start screen.
+  var settings = { categories: [], direction: DIRECTIONS[0].value };
+
+  // Placeholder: step 8 will build the 10-card round and step 7 will show the cards.
+  function startRound() {
+    settings = { categories: getSelectedCategories(), direction: getDirection() };
+    var pool = cardsInCategories(CARDS, settings.categories);
+    if (pool.length === 0) return;
+    el("card-setup").textContent = "Round set up: " + pool.length + " cards from " +
+      settings.categories.length + " categories, direction " + settings.direction +
+      ". Cards arrive in the next step.";
+    showScreen("card");
+  }
+
+  buildStartScreen();
+  showScreen("start");
 </script>
 </body>
 </html>
