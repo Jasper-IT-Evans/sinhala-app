@@ -115,6 +115,19 @@
   }
   button:disabled { opacity: 0.5; cursor: not-allowed; }
 
+  [hidden] { display: none !important; }
+
+  .big { font-size: 1.6rem; font-weight: 600; line-height: 1.3; margin: 0 0 8px; }
+  .small { font-size: 0.9rem; color: var(--muted); margin: 0 0 8px; }
+  .badge {
+    display: inline-block;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+
   .mini-row { display: flex; gap: 12px; margin-bottom: 8px; }
   .mini-row button { flex: 1; }
 
@@ -168,21 +181,23 @@
 
 <section id="screen-card" class="screen" hidden>
   <div class="content">
-    <p class="muted">Card 1 of 10</p>
+    <p id="card-progress" class="muted"></p>
     <div class="box">
-      <h2>Prompt</h2>
-      <p id="card-setup">The word or sentence to say aloud appears here.</p>
+      <p id="card-hint" class="muted"></p>
+      <p id="card-prompt" class="big"></p>
     </div>
     <div class="box" id="answer-area" hidden>
-      <h2>Answer</h2>
-      <p>Answer, other spellings and note appear here after Reveal.</p>
+      <p id="card-answer" class="big"></p>
+      <p id="card-alts" class="small"></p>
+      <p id="card-note" class="small"></p>
+      <span id="card-unverified" class="badge" hidden>unverified</span>
     </div>
   </div>
   <div class="actions">
-    <button type="button" class="primary">Reveal</button>
-    <div class="row">
-      <button type="button">Again</button>
-      <button type="button" class="primary">Got it</button>
+    <button type="button" id="reveal-btn" class="primary">Reveal</button>
+    <div class="row" id="grade-row" hidden>
+      <button type="button" id="again-btn">Again</button>
+      <button type="button" id="gotit-btn" class="primary">Got it</button>
     </div>
   </div>
 </section>
@@ -438,16 +453,85 @@
   // The choices made on the start screen.
   var settings = { categories: [], direction: DIRECTIONS[0].value };
 
-  // Placeholder: step 8 will build the 10-card round and step 7 will show the cards.
+  // ---- Card flow ----
+  var ROUND_SIZE = 10;
+
+  function shuffle(list) {
+    var a = list.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+
+  // Which way one card is asked: English first ("en-si") or Sinhala first ("si-en").
+  function directionForCard(direction) {
+    if (direction !== "mixed") return direction;
+    return Math.random() < 0.5 ? "en-si" : "si-en";
+  }
+
+  function isUnverified(card) {
+    return card.source === "web" || card.source === "ai";
+  }
+
+  // The round currently being played: its cards and the position in them.
+  // Temporary version: step 8 adds requeueing, scoring and saving.
+  var round = null;
+
   function startRound() {
     settings = { categories: getSelectedCategories(), direction: getDirection() };
     var pool = cardsInCategories(CARDS, settings.categories);
     if (pool.length === 0) return;
-    el("card-setup").textContent = "Round set up: " + pool.length + " cards from " +
-      settings.categories.length + " categories, direction " + settings.direction +
-      ". Cards arrive in the next step.";
+    round = {
+      items: shuffle(pool).slice(0, ROUND_SIZE).map(function (card) {
+        return { card: card, dir: directionForCard(settings.direction) };
+      }),
+      index: 0
+    };
+    showCurrentCard();
     showScreen("card");
   }
+
+  function showCurrentCard() {
+    var item = round.items[round.index];
+    var asksEnglish = item.dir === "en-si";
+    el("card-progress").textContent = "Card " + (round.index + 1) + " of " + round.items.length;
+    el("card-hint").textContent = asksEnglish ? "Say this in Sinhala" : "What does this mean?";
+    el("card-prompt").textContent = asksEnglish ? item.card.en : item.card.si;
+    el("answer-area").hidden = true;
+    el("grade-row").hidden = true;
+    el("reveal-btn").hidden = false;
+  }
+
+  function revealCard() {
+    var item = round.items[round.index];
+    var card = item.card;
+    var asksEnglish = item.dir === "en-si";
+    el("card-answer").textContent = asksEnglish ? card.si : card.en;
+    el("card-alts").textContent = card.alt.length ? "Other spellings: " + card.alt.join(", ") : "";
+    el("card-alts").hidden = card.alt.length === 0;
+    el("card-note").textContent = card.note;
+    el("card-note").hidden = card.note === "";
+    el("card-unverified").hidden = !isUnverified(card);
+    el("answer-area").hidden = false;
+    el("reveal-btn").hidden = true;
+    el("grade-row").hidden = false;
+  }
+
+  // Temporary: both buttons just move on. Step 8 will score them.
+  function nextCard() {
+    round.index++;
+    if (round.index >= round.items.length) {
+      showScreen("results");
+    } else {
+      showCurrentCard();
+    }
+  }
+
+  el("reveal-btn").addEventListener("click", revealCard);
+  el("again-btn").addEventListener("click", nextCard);
+  el("gotit-btn").addEventListener("click", nextCard);
 
   buildStartScreen();
   showScreen("start");
