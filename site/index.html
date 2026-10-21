@@ -174,6 +174,7 @@
   </div>
 </section>
 
+<script src="vocab.js"></script>
 <script>
   var SCREENS = ["start", "card", "results"];
 
@@ -182,6 +183,61 @@
       document.getElementById("screen-" + s).hidden = (s !== name);
     });
   }
+
+  function isText(v) {
+    return typeof v === "string" && v.trim() !== "";
+  }
+
+  // Reads window.VOCAB and returns only the usable cards. A bad entry is
+  // skipped with a console warning, so one typo never stops the app.
+  // The rest of the app gets its cards from here (and nowhere else).
+  function loadCards() {
+    var raw = window.VOCAB;
+    if (!Array.isArray(raw)) {
+      console.warn("vocab.js did not provide a card list. Starting with no cards.");
+      return [];
+    }
+    var known = Array.isArray(window.CATEGORIES) ? window.CATEGORIES : null;
+    var usedIds = {};
+    var cards = [];
+
+    raw.forEach(function (entry, i) {
+      var label = "Card " + i + (entry && entry.id ? " (" + entry.id + ")" : "");
+      if (!entry || typeof entry !== "object") {
+        console.warn(label + ": not a card, skipped.");
+        return;
+      }
+      if (!isText(entry.en) || !isText(entry.si)) {
+        console.warn(label + ": missing en or si, skipped.");
+        return;
+      }
+      if (!isText(entry.id)) {
+        console.warn(label + ": missing id, skipped.");
+        return;
+      }
+      if (usedIds[entry.id]) {
+        console.warn(label + ": id already used, skipped.");
+        return;
+      }
+      if (known && known.indexOf(entry.category) < 0) {
+        console.warn(label + ": unknown category \"" + entry.category + "\", skipped.");
+        return;
+      }
+      usedIds[entry.id] = true;
+      cards.push({
+        id: entry.id,
+        category: entry.category,
+        en: entry.en,
+        si: entry.si,
+        alt: Array.isArray(entry.alt) ? entry.alt.filter(isText) : [],
+        note: isText(entry.note) ? entry.note : "",
+        source: entry.source
+      });
+    });
+    return cards;
+  }
+
+  var CARDS = loadCards();
 
   // Temporary layout preview: open /#card or /#results. Removed in step 6.
   var initial = location.hash.replace("#", "");
