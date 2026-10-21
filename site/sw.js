@@ -5,9 +5,9 @@
 // it has been loaded, while new versions still arrive as soon as you are online.
 //
 // To force every device to drop its saved files, change CACHE below
-// (for example "sinhala-v3") and push.
+// (for example "sinhala-v4") and push.
 
-var CACHE = "sinhala-v2";
+var CACHE = "sinhala-v3";
 var NETWORK_TIMEOUT_MS = 3000;
 var PRECACHE = [
   "./",
