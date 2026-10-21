@@ -152,6 +152,21 @@
 
   #start-hint { margin: 0; text-align: center; }
 
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .topbar p { margin: 0; }
+  button.quit { width: auto; padding: 12px 20px; }
+
+  .missed-item { padding: 8px 0; border-top: 1px solid var(--border); }
+  .missed-item:first-child { border-top: 0; }
+  .missed-item p { margin: 0; }
+  .missed-en { font-weight: 600; }
+
   button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
 </style>
 </head>
@@ -184,7 +199,10 @@
 
 <section id="screen-card" class="screen" hidden>
   <div class="content">
-    <p id="card-progress" class="muted"></p>
+    <div class="topbar">
+      <p id="card-progress" class="muted"></p>
+      <button type="button" id="quit-btn" class="quit">Quit</button>
+    </div>
     <div class="box">
       <p id="card-hint" class="muted"></p>
       <p id="card-prompt" class="big"></p>
@@ -208,14 +226,14 @@
 <section id="screen-results" class="screen" hidden>
   <div class="content">
     <h1>Round complete</h1>
-    <p>Score: 0/10</p>
+    <p id="score-line" class="big"></p>
     <div class="box">
       <h2>Missed cards</h2>
-      <p class="muted">Missed cards and their answers are listed here.</p>
+      <div id="missed-list"></div>
     </div>
   </div>
   <div class="actions">
-    <button type="button" class="primary">Another round</button>
+    <button type="button" id="another-btn" class="primary">Another round</button>
     <button type="button" id="back-btn">Back to start</button>
   </div>
 </section>
@@ -478,28 +496,58 @@
     return card.source === "web" || card.source === "ai";
   }
 
-  // The round currently being played: its cards and the position in them.
-  // Temporary version: step 8 adds requeueing, scoring and saving.
+  // The round being played:
+  //   queue - the cards still to show (retries are added as the round goes)
+  //   index - position of the card on screen
+  //   first - for each card id: true/false, right on the first attempt?
+  //   total - how many different cards are in this round
   var round = null;
 
+  // Where a missed card goes back in: the 3rd to 5th card after the one on
+  // screen (rand is a number from 0 up to, not including, 1), or the end of
+  // the queue if fewer cards remain.
+  function retryPosition(index, queueLength, rand) {
+    return Math.min(index + 3 + Math.floor(rand * 3), queueLength);
+  }
+
+  // Score = cards right on the first attempt. Missed = the others, in the
+  // order they were first shown. Retries never change the score.
+  function roundResults(r) {
+    var correct = 0;
+    var missed = [];
+    r.queue.forEach(function (item) {
+      if (item.retry) return;
+      if (r.first[item.card.id]) correct++;
+      else missed.push(item.card);
+    });
+    return { correct: correct, total: r.total, missed: missed };
+  }
+
+  // Called by the Start button: reads the choices from the start screen.
   function startRound() {
-    settings = { categories: getSelectedCategories(), direction: getDirection() };
+    beginRound({ categories: getSelectedCategories(), direction: getDirection() });
+  }
+
+  // Also used by "Another round", which repeats the same choices.
+  function beginRound(chosen) {
+    settings = chosen;
     var pool = cardsInCategories(CARDS, settings.categories);
     if (pool.length === 0) return;
-    round = {
-      items: shuffle(pool).slice(0, ROUND_SIZE).map(function (card) {
-        return { card: card, dir: directionForCard(settings.direction) };
-      }),
-      index: 0
-    };
+    var queue = shuffle(pool).slice(0, ROUND_SIZE).map(function (card) {
+      return { card: card, dir: directionForCard(settings.direction), retry: false };
+    });
+    round = { queue: queue, index: 0, first: {}, total: queue.length };
     showCurrentCard();
     showScreen("card");
   }
 
   function showCurrentCard() {
-    var item = round.items[round.index];
+    var item = round.queue[round.index];
     var asksEnglish = item.dir === "en-si";
-    el("card-progress").textContent = "Card " + (round.index + 1) + " of " + round.items.length;
+    var done = Object.keys(round.first).length;
+    el("card-progress").textContent = item.retry
+      ? "Try again (" + done + " of " + round.total + " done)"
+      : "Card " + (done + 1) + " of " + round.total;
     el("card-hint").textContent = asksEnglish ? "Say this in Sinhala" : "What does this mean?";
     el("card-prompt").textContent = asksEnglish ? item.card.en : item.card.si;
     el("answer-area").hidden = true;
@@ -508,7 +556,7 @@
   }
 
   function revealCard() {
-    var item = round.items[round.index];
+    var item = round.queue[round.index];
     var card = item.card;
     var asksEnglish = item.dir === "en-si";
     el("card-answer").textContent = asksEnglish ? card.si : card.en;
@@ -522,19 +570,66 @@
     el("grade-row").hidden = false;
   }
 
-  // Temporary: both buttons just move on. Step 8 will score them.
-  function nextCard() {
+  // Got it (true) or Again (false) for the card on screen.
+  function markCard(gotIt) {
+    var item = round.queue[round.index];
+    if (!item.retry) round.first[item.card.id] = gotIt;
+    if (!gotIt) {
+      var at = retryPosition(round.index, round.queue.length, Math.random());
+      round.queue.splice(at, 0, { card: item.card, dir: item.dir, retry: true });
+    }
     round.index++;
-    if (round.index >= round.items.length) {
-      showScreen("results");
+    if (round.index >= round.queue.length) {
+      finishRound();
     } else {
       showCurrentCard();
     }
   }
 
+  function finishRound() {
+    // Step 9 will save the round's results to progress here.
+    renderResults(roundResults(round));
+    showScreen("results");
+  }
+
+  function renderResults(res) {
+    el("score-line").textContent = "Score: " + res.correct + "/" + res.total;
+    var list = el("missed-list");
+    while (list.firstChild) list.removeChild(list.firstChild);
+    if (res.missed.length === 0) {
+      var none = document.createElement("p");
+      none.className = "muted";
+      none.textContent = "No missed cards.";
+      list.appendChild(none);
+      return;
+    }
+    res.missed.forEach(function (card) {
+      var row = document.createElement("div");
+      row.className = "missed-item";
+      var en = document.createElement("p");
+      en.className = "missed-en";
+      en.textContent = card.en;
+      var si = document.createElement("p");
+      si.textContent = card.si + (card.alt.length ? " (also: " + card.alt.join(", ") + ")" : "");
+      row.appendChild(en);
+      row.appendChild(si);
+      list.appendChild(row);
+    });
+  }
+
+  // Leaves the round without saving anything from it.
+  function quitRound() {
+    if (!window.confirm("Quit this round? Nothing from it will be saved.")) return;
+    round = null;
+    renderStats();
+    showScreen("start");
+  }
+
   el("reveal-btn").addEventListener("click", revealCard);
-  el("again-btn").addEventListener("click", nextCard);
-  el("gotit-btn").addEventListener("click", nextCard);
+  el("again-btn").addEventListener("click", function () { markCard(false); });
+  el("gotit-btn").addEventListener("click", function () { markCard(true); });
+  el("quit-btn").addEventListener("click", quitRound);
+  el("another-btn").addEventListener("click", function () { beginRound(settings); });
 
   buildStartScreen();
   showScreen("start");
