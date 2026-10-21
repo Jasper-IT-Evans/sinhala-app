@@ -132,6 +132,8 @@
 
   .big { font-size: 1.6rem; font-weight: 600; line-height: 1.3; margin: 0 0 8px; }
   .small { font-size: 0.9rem; color: var(--muted); margin: 0 0 8px; }
+  .small:empty { display: none; }
+  #reset-note { margin: 8px 0 0; }
   .badge {
     display: inline-block;
     border: 1px solid var(--border);
@@ -205,6 +207,18 @@
       <h2>Direction</h2>
       <div id="direction-list"></div>
     </div>
+
+    <div class="box">
+      <h2>Practise weakest</h2>
+      <p class="small">A round of the cards you miss most, topped up with cards you haven't seen. Uses the categories and direction above.</p>
+      <button type="button" id="weakest-btn">Practise weakest</button>
+    </div>
+
+    <div class="box">
+      <h2>Progress</h2>
+      <button type="button" id="reset-btn">Reset progress</button>
+      <p id="reset-note" class="small"></p>
+    </div>
   </div>
   <div class="actions">
     <p id="start-hint" class="muted"></p>
@@ -262,6 +276,7 @@
     SCREENS.forEach(function (s) {
       document.getElementById("screen-" + s).hidden = (s !== name);
     });
+    window.scrollTo(0, 0);
   }
 
   function isText(v) {
@@ -349,6 +364,17 @@
     return clean;
   }
 
+  // Returns true if the saved progress was removed, false if storage is unavailable.
+  function clearProgress() {
+    try {
+      window.localStorage.removeItem(PROGRESS_KEY);
+      return true;
+    } catch (e) {
+      console.warn("Could not clear saved progress.", e);
+      return false;
+    }
+  }
+
   // Returns true if the save worked, false if storage is unavailable.
   function saveProgress(progress) {
     try {
@@ -433,8 +459,8 @@
 
   function updateStartButton() {
     var pool = cardsInCategories(CARDS, getSelectedCategories());
-    var btn = el("start-btn");
-    btn.disabled = pool.length === 0;
+    el("start-btn").disabled = pool.length === 0;
+    el("weakest-btn").disabled = pool.length === 0;
     if (CARDS.length === 0) {
       el("start-hint").textContent = "No cards loaded.";
     } else if (pool.length === 0) {
@@ -479,6 +505,8 @@
     el("select-all").addEventListener("click", function () { setAllCategories(true); });
     el("clear-all").addEventListener("click", function () { setAllCategories(false); });
     el("start-btn").addEventListener("click", startRound);
+    el("weakest-btn").addEventListener("click", startWeakestRound);
+    el("reset-btn").addEventListener("click", resetProgress);
     el("back-btn").addEventListener("click", function () {
       renderStats();
       showScreen("start");
@@ -539,9 +567,36 @@
     return { correct: correct, total: r.total, missed: missed };
   }
 
+  // Picks up to `size` cards for a "Practise weakest" round, in this order:
+  //   1. cards seen before but not perfect, lowest first-attempt accuracy first
+  //   2. cards never seen (random)
+  //   3. perfect cards, longest since last seen first
+  // The picked cards are shuffled so the worst are not always shown first.
+  function pickWeakest(pool, progress, size) {
+    var weak = [], unseen = [], perfect = [];
+    pool.forEach(function (card) {
+      var p = progress[card.id];
+      if (!p || p.seen === 0) unseen.push(card);
+      else if (p.correct < p.seen) weak.push(card);
+      else perfect.push(card);
+    });
+    weak = shuffle(weak).sort(function (a, b) {
+      return progress[a.id].correct / progress[a.id].seen - progress[b.id].correct / progress[b.id].seen;
+    });
+    perfect = shuffle(perfect).sort(function (a, b) {
+      var la = progress[a.id].last, lb = progress[b.id].last;
+      return la < lb ? -1 : la > lb ? 1 : 0;
+    });
+    return shuffle(weak.concat(shuffle(unseen), perfect).slice(0, size));
+  }
+
   // Called by the Start button: reads the choices from the start screen.
   function startRound() {
-    beginRound({ categories: getSelectedCategories(), direction: getDirection() });
+    beginRound({ categories: getSelectedCategories(), direction: getDirection(), weakest: false });
+  }
+
+  function startWeakestRound() {
+    beginRound({ categories: getSelectedCategories(), direction: getDirection(), weakest: true });
   }
 
   // Also used by "Another round", which repeats the same choices.
@@ -549,7 +604,9 @@
     settings = chosen;
     var pool = cardsInCategories(CARDS, settings.categories);
     if (pool.length === 0) return;
-    var queue = shuffle(pool).slice(0, ROUND_SIZE).map(function (card) {
+    el("reset-note").textContent = "";
+    var picked = settings.weakest ? pickWeakest(pool, progress, ROUND_SIZE) : shuffle(pool).slice(0, ROUND_SIZE);
+    var queue = picked.map(function (card) {
       return { card: card, dir: directionForCard(settings.direction), retry: false };
     });
     round = { queue: queue, index: 0, first: {}, total: queue.length };
@@ -655,6 +712,17 @@
       row.appendChild(si);
       list.appendChild(row);
     });
+  }
+
+  // Clears all saved progress, after a confirmation.
+  function resetProgress() {
+    if (!window.confirm("Reset all progress? This clears your totals and can't be undone.")) return;
+    progress = {};
+    var cleared = clearProgress();
+    renderStats();
+    el("reset-note").textContent = cleared
+      ? "Progress cleared."
+      : "Cleared for now, but this device couldn't remove the saved copy.";
   }
 
   // Leaves the round without saving anything from it.
