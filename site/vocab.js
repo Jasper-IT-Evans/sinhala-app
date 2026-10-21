@@ -127,6 +127,118 @@ window.VOCAB = [
   { id: "sent-mama-dan-chiinaye-igena-gannawaa", category: "Sentences", en: "I'm currently studying in China.", si: "Mama d(a)n Chiinaye igena gannawaa.", alt: ["Mama dan Chiinaye igena gannawaa."], note: "", source: "pack" },
   { id: "sent-eyaa-dan-engalanthaye-innawaa", category: "Sentences", en: "He / She is currently living in England.", si: "Eyaa d(a)n Engalanthaye innawaa.", alt: ["Eyaa dan Engalanthaye innawaa."], note: "", source: "pack" },
   { id: "sent-mage-ammaa-amerikaawe-wada-karanawaa", category: "Sentences", en: "My mother works in America.", si: "Mage ammaa (A)merikaawe w(a)da karanawaa.", alt: ["Mage ammaa Amerikaawe wada karanawaa.", "Mage amma Amerikaawe wada karanawaa."], note: "", source: "pack" },
-  { id: "sent-mama-bath-kanawaa", category: "Sentences", en: "I eat rice.", si: "Mama bath kanawaa.", alt: [], note: "", source: "pack" }
+  { id: "sent-mama-bath-kanawaa", category: "Sentences", en: "I eat rice.", si: "Mama bath kanawaa.", alt: [], note: "", source: "pack" },
+
+  // ================================================================
+  // Additions (vocab_additions.md). Unverified: source is "web" or "ai".
+  // ================================================================
+
+  // ---- Numbers ----
+  { id: "num-eka", category: "Numbers", en: "One", si: "eka", alt: [], note: "", source: "web" },
+  { id: "num-deka", category: "Numbers", en: "Two", si: "deka", alt: [], note: "", source: "web" },
+  { id: "num-thuna", category: "Numbers", en: "Three", si: "thuna", alt: ["tuna"], note: "", source: "web" },
+  { id: "num-hathara", category: "Numbers", en: "Four", si: "hathara", alt: ["hatara"], note: "", source: "web" },
+  { id: "num-paha", category: "Numbers", en: "Five", si: "paha", alt: [], note: "", source: "web" },
+  { id: "num-haya", category: "Numbers", en: "Six", si: "haya", alt: [], note: "", source: "web" },
+  { id: "num-hatha", category: "Numbers", en: "Seven", si: "hatha", alt: ["hata"], note: "", source: "web" },
+  { id: "num-ata", category: "Numbers", en: "Eight", si: "ata", alt: [], note: "", source: "ai" },
+  { id: "num-namaya", category: "Numbers", en: "Nine", si: "namaya", alt: [], note: "", source: "ai" },
+  { id: "num-dahaya", category: "Numbers", en: "Ten", si: "dahaya", alt: [], note: "", source: "web" },
+
+  // ---- Family and people ----
+  { id: "fam-ayyaa", category: "Family and people", en: "Older brother", si: "ayyaa", alt: ["aiyya", "ayya"], note: "Sinhala has no single word for \"brother\"; it depends on age", source: "web" },
+  { id: "fam-malli", category: "Family and people", en: "Younger brother", si: "malli", alt: [], note: "", source: "ai" },
+  { id: "fam-akkaa", category: "Family and people", en: "Older sister", si: "akkaa", alt: ["akka", "akki"], note: "", source: "web" },
+  { id: "fam-nangi", category: "Family and people", en: "Younger sister", si: "nangi", alt: [], note: "", source: "web" },
+  { id: "fam-lamayaa", category: "Family and people", en: "Child", si: "lamayaa", alt: ["lamaya"], note: "", source: "ai" },
+  { id: "fam-puthaa", category: "Family and people", en: "Son", si: "puthaa", alt: [], note: "", source: "ai" },
+  { id: "fam-duwa", category: "Family and people", en: "Daughter", si: "duwa", alt: [], note: "", source: "ai" },
+  { id: "fam-aachchi", category: "Family and people", en: "Grandmother", si: "aachchi", alt: [], note: "", source: "ai" },
+  { id: "fam-seeya", category: "Family and people", en: "Grandfather", si: "seeya", alt: [], note: "", source: "ai" },
+  { id: "fam-pawula", category: "Family and people", en: "Family", si: "pawula", alt: [], note: "", source: "ai" },
+
+  // ---- Food and drink ----
+  { id: "food-kaema", category: "Food and drink", en: "Food", si: "kaema", alt: ["kæma"], note: "", source: "ai" },
+  { id: "food-kiri", category: "Food and drink", en: "Milk", si: "kiri", alt: [], note: "", source: "ai" },
+  { id: "food-kopi", category: "Food and drink", en: "Coffee", si: "kopi", alt: [], note: "", source: "ai" },
+  { id: "food-paan", category: "Food and drink", en: "Bread", si: "paan", alt: [], note: "", source: "ai" },
+  { id: "food-maalu", category: "Food and drink", en: "Fish", si: "maalu", alt: [], note: "", source: "ai" },
+  { id: "food-mas", category: "Food and drink", en: "Meat", si: "mas", alt: [], note: "", source: "ai" },
+  { id: "food-biththara", category: "Food and drink", en: "Egg", si: "biththara", alt: [], note: "", source: "ai" },
+  { id: "food-elawalu", category: "Food and drink", en: "Vegetables", si: "elawalu", alt: ["elavalu"], note: "", source: "ai" },
+  { id: "food-seeni", category: "Food and drink", en: "Sugar", si: "seeni", alt: [], note: "", source: "ai" },
+  { id: "food-lunu", category: "Food and drink", en: "Salt", si: "lunu", alt: [], note: "", source: "ai" },
+
+  // ---- Places ----
+  { id: "place-gedara", category: "Places", en: "Home / house", si: "gedara", alt: [], note: "", source: "ai" },
+  { id: "place-kaaryaalaya", category: "Places", en: "Office", si: "kaaryaalaya", alt: [], note: "", source: "ai" },
+  { id: "place-nagaraya", category: "Places", en: "Town / city", si: "nagaraya", alt: [], note: "", source: "ai" },
+  { id: "place-muhuda", category: "Places", en: "Sea", si: "muhuda", alt: [], note: "", source: "ai" },
+
+  // ---- Time ----
+  { id: "time-ada", category: "Time", en: "Today", si: "ada", alt: [], note: "", source: "ai" },
+  { id: "time-heta", category: "Time", en: "Tomorrow", si: "heta", alt: [], note: "", source: "ai" },
+  { id: "time-iiye", category: "Time", en: "Yesterday", si: "iiye", alt: ["eeye"], note: "", source: "ai" },
+  { id: "time-passe", category: "Time", en: "Later", si: "passe", alt: [], note: "", source: "ai" },
+  { id: "time-hamadaama", category: "Time", en: "Every day", si: "h(a)madaama", alt: ["hamadaama", "hæmadaama"], note: "", source: "ai" },
+  { id: "time-dawasa", category: "Time", en: "Day", si: "dawasa", alt: ["davasa"], note: "", source: "ai" },
+
+  // ---- Describing words ----
+  { id: "desc-loku", category: "Describing words", en: "Big", si: "loku", alt: [], note: "", source: "ai" },
+  { id: "desc-podi", category: "Describing words", en: "Small", si: "podi", alt: [], note: "", source: "ai" },
+  { id: "desc-narakai", category: "Describing words", en: "Bad", si: "narakai", alt: [], note: "Pairs with hondai (good)", source: "ai" },
+  { id: "desc-rasnei", category: "Describing words", en: "Hot (weather)", si: "rasnei", alt: ["rasnai"], note: "", source: "ai" },
+  { id: "desc-seethalai", category: "Describing words", en: "Cold", si: "seethalai", alt: [], note: "", source: "ai" },
+  { id: "desc-rasai", category: "Describing words", en: "Tasty", si: "rasai", alt: [], note: "", source: "ai" },
+  { id: "desc-lassanai", category: "Describing words", en: "Beautiful / lovely", si: "lassanai", alt: [], note: "Appears in the pack's reading text but isn't taught there", source: "ai" },
+  { id: "desc-aluth", category: "Describing words", en: "New", si: "aluth", alt: [], note: "", source: "ai" },
+  { id: "desc-parana", category: "Describing words", en: "Old (things)", si: "parana", alt: [], note: "", source: "ai" },
+
+  // ---- Verbs ----
+  { id: "verb-kathaa-karanawaa", category: "Verbs", en: "To speak", si: "kathaa karanawaa", alt: [], note: "Same pattern as wada karanawaa", source: "ai" },
+  { id: "verb-kiyanawaa", category: "Verbs", en: "To say / tell", si: "kiyanawaa", alt: [], note: "", source: "ai" },
+  { id: "verb-balanawaa", category: "Verbs", en: "To look / watch", si: "balanawaa", alt: [], note: "", source: "ai" },
+  { id: "verb-kiyawanawaa", category: "Verbs", en: "To read", si: "kiyawanawaa", alt: ["kiyavanawaa"], note: "", source: "ai" },
+  { id: "verb-liyanawaa", category: "Verbs", en: "To write", si: "liyanawaa", alt: [], note: "", source: "ai" },
+  { id: "verb-nidaagannawaa", category: "Verbs", en: "To sleep", si: "nidaagannawaa", alt: [], note: "", source: "ai" },
+  { id: "verb-denawaa", category: "Verbs", en: "To give", si: "denawaa", alt: [], note: "", source: "ai" },
+  { id: "verb-gannawaa", category: "Verbs", en: "To take", si: "gannawaa", alt: [], note: "", source: "ai" },
+
+  // ---- Verb negatives (present tense): replace -nawaa with -nne naa ----
+  { id: "neg-kanne-naa", category: "Verb negatives", en: "Don't eat", si: "kanne naa", alt: ["kanne nae"], note: "From kanawaa", source: "web" },
+  { id: "neg-bonne-naa", category: "Verb negatives", en: "Don't drink", si: "bonne naa", alt: ["bonne nae"], note: "From bonawaa", source: "ai" },
+  { id: "neg-yanne-naa", category: "Verb negatives", en: "Don't go", si: "yanne naa", alt: ["yanne nae"], note: "From yanawaa", source: "ai" },
+  { id: "neg-enne-naa", category: "Verb negatives", en: "Don't come", si: "enne naa", alt: ["enne nae"], note: "From enawaa", source: "ai" },
+  { id: "neg-danne-naa", category: "Verb negatives", en: "Don't know", si: "danne naa", alt: ["danne nae"], note: "From dannawaa", source: "ai" },
+  { id: "neg-igena-ganne-naa", category: "Verb negatives", en: "Don't learn / study", si: "igena ganne naa", alt: [], note: "From igena gannawaa", source: "ai" },
+  { id: "neg-wada-karanne-naa", category: "Verb negatives", en: "Don't work", si: "wada karanne naa", alt: [], note: "From wada karanawaa", source: "ai" },
+  { id: "neg-uyanne-naa", category: "Verb negatives", en: "Don't cook", si: "uyanne naa", alt: [], note: "From uyanawaa", source: "ai" },
+  { id: "neg-inne-naa", category: "Verb negatives", en: "Don't live / am not (in a place)", si: "inne naa", alt: [], note: "From innawaa", source: "ai" },
+
+  // ---- Phrases (additions) ----
+  { id: "phr-karunaakarala", category: "Phrases", en: "Please", si: "karunaakarala", alt: ["karunakarala", "karunaakara"], note: "", source: "web" },
+  { id: "phr-meeka-kiiyada", category: "Phrases", en: "How much is this?", si: "meeka kiiyada?", alt: ["meeka keeyada"], note: "", source: "web" },
+  { id: "phr-mata-therenne-naa", category: "Phrases", en: "I don't understand", si: "mata therenne naa", alt: ["mata therenne nae"], note: "Uses mata (\"to me\"), not mama", source: "web" },
+  { id: "phr-sinhala-danna-naa", category: "Phrases", en: "I don't speak Sinhala", si: "Sinhala danna naa", alt: ["Sinhala danne naa"], note: "Elsewhere the negative ends -nne naa (danne naa, don't know), so check which is right", source: "web" },
+  { id: "phr-hemin-kiyanna", category: "Phrases", en: "Please speak slowly", si: "karunaakarala hemin kiyanna", alt: [], note: "", source: "web" },
+  { id: "phr-aayeth-kiyanna", category: "Phrases", en: "Please say that again", si: "aayeth kiyanna", alt: [], note: "", source: "ai" },
+  { id: "phr-mata-oonee", category: "Phrases", en: "I want …", si: "mata … oonee", alt: ["mata … one"], note: "Uses mata, not mama", source: "ai" },
+  { id: "phr-mata-epaa", category: "Phrases", en: "I don't want it", si: "mata epaa", alt: [], note: "", source: "ai" },
+  { id: "phr-bil-eka-denna", category: "Phrases", en: "The bill, please", si: "bil eka denna", alt: [], note: "", source: "web" },
+  { id: "phr-karunaakarala-mata-wathura-denna", category: "Phrases", en: "Please give me water", si: "karunaakarala mata wathura denna", alt: [], note: "", source: "web" },
+
+  // ---- Sentences (additions, present tense) ----
+  { id: "sent-mama-the-bonawaa", category: "Sentences", en: "I drink tea.", si: "Mama thé bonawaa.", alt: ["Mama the bonawaa."], note: "", source: "ai" },
+  { id: "sent-mama-bath-kanne-naa", category: "Sentences", en: "I don't eat rice.", si: "Mama bath kanne naa.", alt: [], note: "", source: "ai" },
+  { id: "sent-api-kadayata-yanawaa", category: "Sentences", en: "We go to the shop.", si: "Api kadayata yanawaa.", alt: [], note: "", source: "ai" },
+  { id: "sent-eyaa-iskolayata-yanawaa", category: "Sentences", en: "He / she goes to school.", si: "Eyaa iskolayata yanawaa.", alt: [], note: "", source: "ai" },
+  { id: "sent-mage-yaaluwaa-lankaawata-enawaa", category: "Sentences", en: "My friend is coming to Sri Lanka.", si: "Mage yaaluwaa Lankaawata enawaa.", alt: ["Mage yaaluwaa Sri Lankaawata enawaa."], note: "", source: "ai" },
+  { id: "sent-mama-danne-naa", category: "Sentences", en: "I don't know.", si: "Mama danne naa.", alt: [], note: "", source: "ai" },
+  { id: "sent-eyaalaa-kopi-bonne-naa", category: "Sentences", en: "They don't drink coffee.", si: "Eyaalaa kopi bonne naa.", alt: [], note: "", source: "ai" },
+  { id: "sent-mage-thaaththa-bath-uyanawaa", category: "Sentences", en: "My father cooks rice.", si: "Mage thaaththa bath uyanawaa.", alt: [], note: "", source: "ai" },
+  { id: "sent-mama-sinhala-igena-gannawaa", category: "Sentences", en: "I'm learning Sinhala.", si: "Mama Sinhala igena gannawaa.", alt: [], note: "", source: "ai" },
+  { id: "sent-oyaa-the-bonawaada", category: "Sentences", en: "Do you drink tea?", si: "Oyaa thé bonawaada?", alt: ["Oyaa the bonawaada?"], note: "Question marker -da", source: "ai" },
+  { id: "sent-mama-engalanthaye-innawaa", category: "Sentences", en: "I live in England.", si: "Mama Engalanthaye innawaa.", alt: [], note: "Same pattern as pack section 7", source: "ai" },
+  { id: "sent-eyaa-ada-wada-karanne-naa", category: "Sentences", en: "He / she doesn't work today.", si: "Eyaa ada wada karanne naa.", alt: [], note: "", source: "ai" }
 
 ];
