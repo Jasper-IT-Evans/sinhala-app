@@ -239,6 +239,49 @@
 
   var CARDS = loadCards();
 
+  // ---- Saved progress ----
+  // Stored in localStorage as { cardId: { seen, correct, last } }.
+  // seen = times seen, correct = times right on the first attempt,
+  // last = date last seen (YYYY-MM-DD). Every storage call is wrapped in
+  // try/catch: if storage is empty, corrupt or blocked, the app carries on
+  // with empty progress held in memory.
+  var PROGRESS_KEY = "sinhala.progress.v1";
+
+  function loadProgress() {
+    var clean = {};
+    try {
+      var text = window.localStorage.getItem(PROGRESS_KEY);
+      if (!text) return clean;
+      var data = JSON.parse(text);
+      if (!data || typeof data !== "object" || Array.isArray(data)) return clean;
+      Object.keys(data).forEach(function (id) {
+        var p = data[id];
+        if (!p || typeof p !== "object") return;
+        var seen = Number(p.seen);
+        var correct = Number(p.correct);
+        if (!isFinite(seen) || !isFinite(correct) || seen < 0 || correct < 0 || correct > seen) return;
+        clean[id] = { seen: Math.floor(seen), correct: Math.floor(correct), last: typeof p.last === "string" ? p.last : "" };
+      });
+    } catch (e) {
+      console.warn("Could not read saved progress; starting empty.", e);
+      return {};
+    }
+    return clean;
+  }
+
+  // Returns true if the save worked, false if storage is unavailable.
+  function saveProgress(progress) {
+    try {
+      window.localStorage.setItem(PROGRESS_KEY, JSON.stringify(progress));
+      return true;
+    } catch (e) {
+      console.warn("Could not save progress.", e);
+      return false;
+    }
+  }
+
+  var progress = loadProgress();
+
   // Temporary layout preview: open /#card or /#results. Removed in step 6.
   var initial = location.hash.replace("#", "");
   showScreen(SCREENS.indexOf(initial) >= 0 ? initial : "start");
