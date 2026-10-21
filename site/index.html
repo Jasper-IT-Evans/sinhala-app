@@ -743,5 +743,19 @@
   buildStartScreen();
   showScreen("start");
 </script>
+<script>
+  // Lets the app be installed and open offline. A failure here never affects the app.
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", function () {
+      try {
+        navigator.serviceWorker.register("sw.js").catch(function (e) {
+          console.warn("Service worker registration failed.", e);
+        });
+      } catch (e) {
+        console.warn("Service worker registration failed.", e);
+      }
+    });
+  }
+</script>
 </body>
 </html>
