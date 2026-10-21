@@ -3,30 +3,40 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#282D37">
+<meta name="theme-color" content="#8D153A" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#2A0F18" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Sinhala">
 <title>Sinhala practice</title>
 <style>
   :root {
-    --bg: #ffffff;
-    --surface: #f2f3f5;
-    --text: #282D37;
-    --muted: #5d6573;
-    --accent: #FF6223;
+    /* Sri Lankan flag colours: maroon, saffron, green, yellow, on warm cream */
+    --bg: #FFF8EC;
+    --surface: #F6EAD2;
+    --text: #2B1A12;
+    --muted: #6B5A4A;
+    --border: #E2CFAE;
+    --accent: #8D153A;
     --accent-text: #ffffff;
-    --border: #d3d6db;
+    --good: #00534E;
+    --good-text: #ffffff;
+    --focus: #EB7400;
     /* Space under the bottom buttons, so Netlify's corner badge never covers them */
     --bottom-gap: 64px;
   }
   @media (prefers-color-scheme: dark) {
     :root {
-      --bg: #282D37;
-      --surface: #353b47;
-      --text: #f2f3f5;
-      --muted: #aab0bb;
-      --border: #4a5160;
+      --bg: #2A0F18;
+      --surface: #3D1B27;
+      --text: #FBF1E1;
+      --muted: #D3B9A6;
+      --border: #5E3340;
+      --accent: #FFBE29;
+      --accent-text: #2A0F18;
+      --good: #5CC8B5;
+      --good-text: #0F2A26;
+      --focus: #FFBE29;
     }
   }
 
@@ -167,7 +177,12 @@
   .missed-item p { margin: 0; }
   .missed-en { font-weight: 600; }
 
-  button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+  button.good {
+    background: var(--good);
+    border-color: var(--good);
+    color: var(--good-text);
+  }
+  button:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 </style>
 </head>
 <body>
@@ -218,7 +233,7 @@
     <button type="button" id="reveal-btn" class="primary">Reveal</button>
     <div class="row" id="grade-row" hidden>
       <button type="button" id="again-btn">Again</button>
-      <button type="button" id="gotit-btn" class="primary">Got it</button>
+      <button type="button" id="gotit-btn" class="good">Got it</button>
     </div>
   </div>
 </section>
